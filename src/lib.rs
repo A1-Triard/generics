@@ -1020,7 +1020,7 @@ macro_rules! concat_g_impl {
     ) => {
         $crate::std_compile_error!($crate::std_concat!(
             "invalid generics '",
-            $crate::std_stringify!($($item:tt)*),
+            $crate::std_stringify!($($item)*),
             "'"
         ));
     };
@@ -1165,7 +1165,7 @@ macro_rules! concat_g_impl {
     ) => {
         $crate::std_compile_error!($crate::std_concat!(
             "invalid generics '",
-            $crate::std_stringify!($($tail:tt)+),
+            $crate::std_stringify!($($tail)+),
             "'"
         ));
     };
@@ -1400,7 +1400,7 @@ macro_rules! concat_r_impl {
     ) => {
         $crate::std_compile_error!($crate::std_concat!(
             "invalid generics '",
-            $crate::std_stringify!($($tail:tt)+),
+            $crate::std_stringify!($($tail)+),
             "'"
         ));
     };
@@ -1457,7 +1457,7 @@ macro_rules! concat_w_impl {
     ) => {
         $crate::std_compile_error!($crate::std_concat!(
             "invalid generics '",
-            $crate::std_stringify!($($item:tt)+),
+            $crate::std_stringify!($($item)+),
             "'"
         ));
     };
