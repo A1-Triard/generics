@@ -1664,4 +1664,36 @@ mod tests {
         let _ = x.c;
         let _ = x.d;
     }
+
+    macro_rules! descr {
+        (
+            impl $($token:tt)*
+        ) => {
+            parse! {
+                descr {
+                    @impl
+                }
+                $($token)*
+            }
+        };
+        (
+            @impl [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] $t:ty { $($body:tt)* }
+        ) => {
+            impl $($g)* $t $($w)* { $($body)* }
+        };
+    }
+
+    struct Test<A>(A);
+
+    descr! {
+        impl<A> Test<A> where A: Clone {
+            fn a(&self) { }
+        }
+    }
+
+    #[test]
+    fn run_test() {
+        let x: Test<u32> = Test(7);
+        x.a();
+    }
 }
