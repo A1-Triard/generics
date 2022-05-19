@@ -16,7 +16,7 @@ pub use core::stringify as std_stringify;
 /// This macro accepts an input in the following form:
 ///
 /// ```ignore
-/// $callback_macro:path { $($callback_macro_args:tt)* }
+/// $callback:path { $($callback_args:tt)* }
 /// $(
 ///     <$generics>
 ///     $($tokens_between_generics_and_where_clause:tt)*
@@ -31,11 +31,11 @@ pub use core::stringify as std_stringify;
 /// and expands into
 ///
 /// ```ignore
-/// $callback_macro! {
-///     $( $callback_macro_args )*
+/// $callback! {
+///     $($callback_args)*
 ///     [ $(<$generics>)? ]
 ///     [ $(<$generics_without_constraints>)? ]
-///     [ $(where $where_clause)? ]
+///     [ $($(where $where_clause)?)? ]
 ///     $($($tokens_between_generics_and_where_clause)*)?
 ///     $(
 ///         $( ; | { $($body)* } )
@@ -60,22 +60,34 @@ pub use core::stringify as std_stringify;
 ///         $name:ident $($token:tt)*
 ///     ) => {
 ///         $crate::generics_parse! {
-///             $crate::impl_the_trait {
+///             $crate::impl_the_trait_impl {
 ///                 @impl $name
 ///             }
 ///             $($token)*
 ///         }
 ///     };
+/// }
+///
+/// #[doc(hidden)]
+/// #[macro_export]
+/// macro_rules! unexpected_token {
+///     () => { };
+/// }
+///
+/// #[doc(hidden)]
+/// #[macro_export]
+/// macro_rules! impl_the_trait_impl {
 ///     (
 ///         @impl $name:ident [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
 ///     ) => {
 ///         impl $($g)* $crate::TheTrait for $name $($r)* $($w)* { }
 ///     };
 ///     (
-///         @impl $name:ident [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] $($token:tt)+ 
+///         @impl $name:ident [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] $token:tt $($tail:tt)* 
 ///     ) => {
+///         $crate::unexpected_token!($token);
 ///         $crate::std_compile_error!(
-///             "invalid input, allowed input is '$name:ident $( < $generics > $(where $where_clause)? )?'"
+///             "invalid input, allowed input is '$name:ident $(<$generics> $(where $where_clause)?)?'"
 ///         );
 ///     };
 /// }
@@ -92,6 +104,12 @@ macro_rules! parse {
     ) => {
         $crate::deny_where_clause_impl! { [$callback] [$($callback_args)*] [] [$($token)*] }
     };
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! unexpected_token {
+    () => { };
 }
 
 #[doc(hidden)]
@@ -132,6 +150,7 @@ macro_rules! parse_generics_impl {
         [$($r:tt)*]
         [$x:tt $($token:tt)*]
     ) => {
+        $crate::unexpected_token!($x);
         $crate::std_compile_error!($crate::std_concat!(
             "unexpected token '",
             $crate::std_stringify!($x),
@@ -282,6 +301,7 @@ macro_rules! parse_generics_impl {
         [$($r:tt)*]
         [$x:tt $($token:tt)*]
     ) => {
+        $crate::unexpected_token!($x);
         $crate::std_compile_error!($crate::std_concat!(
             "unexpected token '",
             $crate::std_stringify!($x),
@@ -917,11 +937,31 @@ macro_rules! deny_where_clause_impl {
 }
 
 /// Concats several [`parse`](parse) calls results together.
+///
+/// This macro accepts an input in the following form:
+///
+/// ```ignore
+/// $callback:path { $($callback_args:tt)* }
+/// $($(
+///     [$(<$($g:tt)*>)?] [$(<$($r:tt)*>)?] [$(where $($w:tt)*)?]
+/// ),+ $(,)?)?
+/// ```
+///
+/// and expands into
+///
+/// ```ignore
+/// $callback! {
+///     $($callback_args)*
+///     [$(<$($g)+>)?] [$(<$($r)+>)?] [$(where $($w)+)?]
+/// }
+/// ```
 #[macro_export]
 macro_rules! concat {
     (
         $callback:path { $($callback_args:tt)* }
-        $($([$($g:tt)*] [$($r:tt)*] [$($w:tt)*]),+ $(,)?)?
+        $($(
+            [$($g:tt)*] [$($r:tt)*] [$($w:tt)*]
+        ),+ $(,)?)?
     ) => {
         $crate::concat_impl! {
             [$callback] [$($callback_args)*]
@@ -1013,12 +1053,13 @@ macro_rules! concat_g_impl {
     (
         @list
         [$callback:path] [$($callback_args:tt)*]
-        [[$($item:tt)*] $($list:tt)*]
+        [[$token:tt $($item:tt)*] $($list:tt)*]
         [$($lifetimes:tt)*] [$($types:tt)*]
     ) => {
+        $crate::unexpected_token!($token);
         $crate::std_compile_error!($crate::std_concat!(
             "invalid generics '",
-            $crate::std_stringify!($($item)*),
+            $crate::std_stringify!($token $($item)*),
             "'"
         ));
     };
@@ -1159,12 +1200,13 @@ macro_rules! concat_g_impl {
         [$callback:path] [$($callback_args:tt)*] [$($list:tt)*]
         [$($lifetimes:tt)*] [$($types:tt)*]
         [$($param:tt)*]
-        [ > $($tail:tt)+ ]
+        [ > $token:tt $($tail:tt)* ]
     ) => {
+        $crate::unexpected_token($token);
         $crate::std_compile_error!($crate::std_concat!(
-            "invalid generics '",
-            $crate::std_stringify!($($tail)+),
-            "'"
+            "unexpected tail '",
+            $crate::std_stringify!($token $($tail)*),
+            "' after generics"
         ));
     };
     (
@@ -1189,7 +1231,7 @@ macro_rules! concat_g_impl {
         [$($param:tt)*]
         []
     ) => {
-        $crate::std_compile_error!("invalid generics");
+        $crate::std_compile_error!("unclosed generics");
     };
     (
         @angles
@@ -1263,10 +1305,24 @@ macro_rules! concat_g_impl {
         [$callback:path] [$($callback_args:tt)*] [$($list:tt)*]
         [$($lifetimes:tt)*] [$($types:tt)*] [$($param:tt)*]
         [$($outer_levels:tt)*]
-        [$($content:tt)*]
+        [$($content:tt)+]
         []
     ) => {
-        $crate::std_compile_error!("invalid generics");
+        $crate::std_compile_error!($crate::std_concat!(
+            "unclosed angles: '<",
+            $crate::std_stringify!($($content)+),
+            "'"
+        ));
+    };
+    (
+        @angles
+        [$callback:path] [$($callback_args:tt)*] [$($list:tt)*]
+        [$($lifetimes:tt)*] [$($types:tt)*] [$($param:tt)*]
+        [$($outer_levels:tt)*]
+        []
+        []
+    ) => {
+        $crate::std_compile_error!("unclosed angles");
     };
 }
 
@@ -1302,10 +1358,15 @@ macro_rules! concat_r_impl {
     (
         @list
         [$callback:path] [$($callback_args:tt)*]
-        [[$($item:tt)*] $($list:tt)*]
+        [[$token:tt $($item:tt)*] $($list:tt)*]
         [$($lifetimes:tt)*] [$($types:tt)*]
     ) => {
-        $crate::std_compile_error!("invalid generics");
+        $crate::unexpected_token!($token);
+        $crate::std_compile_error!($crate::std_concat!(
+            "invalid generics without constraints '",
+            $crate::std_stringify!($token $($item)*),
+            "'"
+        ));
     };
     (
         @list
@@ -1394,13 +1455,22 @@ macro_rules! concat_r_impl {
         @item
         [$callback:path] [$($callback_args:tt)*] [$($list:tt)*]
         [$($lifetimes:tt)*] [$($types:tt)*]
-        [$($tail:tt)*]
+        [$token:tt $($tail:tt)*]
     ) => {
+        $crate::unexpected_token!($token);
         $crate::std_compile_error!($crate::std_concat!(
-            "invalid generics '",
-            $crate::std_stringify!($($tail)+),
+            "invalid generics without constraints '",
+            $crate::std_stringify!($token $($tail)*),
             "'"
         ));
+    };
+    (
+        @item
+        [$callback:path] [$($callback_args:tt)*] [$($list:tt)*]
+        [$($lifetimes:tt)*] [$($types:tt)*]
+        []
+    ) => {
+        $crate::std_compile_error!("unclosed generics without constraints");
     };
 }
 
@@ -1450,12 +1520,13 @@ macro_rules! concat_w_impl {
     (
         @list
         [$callback:path] [$($callback_args:tt)*]
-        [[$($item:tt)*] $($list:tt)*]
+        [[$token:tt $($item:tt)*] $($list:tt)*]
         [$($w:tt)*]
     ) => {
+        $crate::unexpected_token!($token);
         $crate::std_compile_error!($crate::std_concat!(
-            "invalid generics '",
-            $crate::std_stringify!($($item)+),
+            "invalid where clause '",
+            $crate::std_stringify!($token $($item)*),
             "'"
         ));
     };
