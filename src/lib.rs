@@ -20,9 +20,7 @@ pub use core::stringify as std_stringify;
 /// $(
 ///     <$generics>
 ///     $($tokens_between_generics_and_where_clause:tt)*
-///     $(
-///         where $where_clause
-///     )?
+///     $(where $where_clause)?
 /// )?
 /// $(
 ///     $( ; | { $($body:tt)* } )
