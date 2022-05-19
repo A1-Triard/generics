@@ -16,17 +16,17 @@ pub use core::stringify as std_stringify;
 /// This macro accepts an input in the following form:
 ///
 /// ```ignore
-/// $callback_macro { $($callback_macro_args)* }
+/// $callback_macro:path { $($callback_macro_args:tt)* }
 /// $(
-///     < $generics >
-///     $( $tokens_between_generics_and_where_clause )*
+///     <$generics>
+///     $($tokens_between_generics_and_where_clause:tt)*
 ///     $(
 ///         where $where_clause
 ///     )?
 /// )?
 /// $(
-///     $( ; | { $($body)* } )
-///     $($remaining_tokens)*
+///     $( ; | { $($body:tt)* } )
+///     $($remaining_tokens:tt)*
 /// )?
 /// ```
 ///
@@ -35,10 +35,10 @@ pub use core::stringify as std_stringify;
 /// ```ignore
 /// $callback_macro! {
 ///     $( $callback_macro_args )*
-///     [ $( < $generics > )? ]
-///     [ $( < $generics_without_constraints > )? ]
-///     [ $( where $where_clause )? ]
-///     $($( $tokens_between_generics_and_where_clause )*)?
+///     [ $(<$generics>)? ]
+///     [ $(<$generics_without_constraints>)? ]
+///     [ $(where $where_clause)? ]
+///     $($($tokens_between_generics_and_where_clause)*)?
 ///     $(
 ///         $( ; | { $($body)* } )
 ///         $($remaining_tokens)*
@@ -77,7 +77,7 @@ pub use core::stringify as std_stringify;
 ///         @impl $name:ident [$($g:tt)*] [$($r:tt)*] [$($w:tt)*] $($token:tt)+ 
 ///     ) => {
 ///         $crate::std_compile_error!(
-///             "invalid input, allowed input is '$name $( < $generics > $(where $where_clause)? )?'"
+///             "invalid input, allowed input is '$name:ident $( < $generics > $(where $where_clause)? )?'"
 ///         );
 ///     };
 /// }

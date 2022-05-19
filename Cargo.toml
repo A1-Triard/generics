@@ -1,7 +1,7 @@
 [package]
 edition = "2021"
 name = "generics"
-version = "0.4.1"
+version = "0.4.2"
 rust-version = "1.60"
 authors = ["warlock <internalmike@gmail.com>"]
 description = "Provides macros for parsing generics (with optional where clause) in `macro_rules!`."
