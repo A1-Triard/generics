@@ -1,3 +1,5 @@
+![maintenance: actively developed](https://img.shields.io/badge/maintenance-actively--developed-brightgreen.svg)
+
 # generics-parse
 
 Provides macros for parsing generics and where clauses in `macro_rules!`.

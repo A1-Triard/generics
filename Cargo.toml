@@ -1,7 +1,7 @@
 [package]
 edition = "2021"
 name = "generics"
-version = "0.4.3"
+version = "0.4.4"
 rust-version = "1.60"
 authors = ["warlock <internalmike@gmail.com>"]
 description = "Provides macros for parsing generics (with optional where clause) in `macro_rules!`."
@@ -11,3 +11,6 @@ keywords = ["macro", "parser", "generics", "where", "macro_rules"]
 categories = ["rust-patterns", "no-std"]
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/A1-Triard/generics"
+
+[badges]
+maintenance = { status = "actively-developed" }
