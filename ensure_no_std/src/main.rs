@@ -1,11 +1,9 @@
-#![feature(default_alloc_error_handler)]
 #![feature(start)]
 
 #![deny(warnings)]
 
 #![no_std]
 
-use core::alloc::Layout;
 use core::panic::PanicInfo;
 #[cfg(not(windows))]
 use libc::exit;
@@ -31,11 +29,6 @@ unsafe fn exit(code: UINT) -> ! {
 #[panic_handler]
 pub extern fn panic(_info: &PanicInfo) -> ! {
     unsafe { exit(99) }
-}
-
-#[no_mangle]
-pub fn rust_oom(_layout: Layout) -> ! {
-    unsafe { exit(98) }
 }
 
 trait TheTrait { }
