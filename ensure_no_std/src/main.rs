@@ -27,7 +27,7 @@ unsafe fn exit(code: UINT) -> ! {
 }
 
 #[panic_handler]
-pub extern fn panic(_info: &PanicInfo) -> ! {
+fn panic(_info: &PanicInfo) -> ! {
     unsafe { exit(99) }
 }
 
