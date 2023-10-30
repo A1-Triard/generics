@@ -2,6 +2,7 @@
 #![deny(warnings)]
 #![doc(test(attr(deny(warnings))))]
 #![doc(test(attr(allow(dead_code))))]
+#![doc(test(attr(allow(unused_imports))))]
 #![doc(test(attr(allow(unused_variables))))]
 
 #[doc(hidden)]
