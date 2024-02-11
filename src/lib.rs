@@ -1659,6 +1659,7 @@ mod tests {
         };
     }
 
+    #[allow(dead_code)]
     trait TestTrait2 { }
 
     impl_tr! {
