@@ -31,6 +31,7 @@ fn panic(_info: &PanicInfo) -> ! {
     unsafe { exit(99) }
 }
 
+#[allow(dead_code)]
 trait TheTrait { }
 
 use generics::parse as generics_parse;
