@@ -4,6 +4,7 @@
 #![doc(test(attr(allow(dead_code))))]
 #![doc(test(attr(allow(unused_imports))))]
 #![doc(test(attr(allow(unused_variables))))]
+#![doc(test(attr(allow(non_local_definitions))))]
 
 #[doc(hidden)]
 pub use core::compile_error as std_compile_error;
